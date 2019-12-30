@@ -66,6 +66,12 @@ k_fused    <- as.numeric(names(which.max(sil_fused)))
 hc_fused   <- hclust(as.dist(P), method=this_method)
 cl_fused   <- cutree(hc_fused, k_fused)
 
+#ASSIGN NAMES
+
+mm <- paste("omic",1:(dim(S)[1]-1),sep="")
+
+rownames(S) <- c(mm,"omic_AND")
+
 return(list(cluster=cl_fused, P=P, S=S))
 
 }# end of function
