@@ -1,0 +1,17 @@
+
+import(methods)
+import(cluster)
+import(fastcluster)
+import(doParallel)
+import(foreach)
+
+importFrom("stats", "dnorm", "rgamma", "rnorm", "runif", "sd")
+importFrom("utils", "read.table", "write.table")
+
+export(calc.BINARY)
+export(calc.SIL)
+
+export(HC_fused)
+export(HC_fused_subtyping)
+
+
