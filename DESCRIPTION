@@ -6,8 +6,8 @@ Date: 2019-12-25
 Author: Bastian Pfeifer
 Maintainer: Bastian Pfeifer <bastianxpfeifer@gmail.com>
 Depends: R (>= 2.14.2)
-Imports: methods
-Suggests: fastcluster, foreach, doParallel
+Imports: methods, fastcluster, foreach, doParallel
+Suggests: SNF
 Description: to be filled in ...
 License: GPL-2
 LazyLoad: yes

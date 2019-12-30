@@ -24,7 +24,7 @@ HC_fused <- function(MAT=list(), n.iter=100, print=FALSE){
 
   for(xx in 1:n.iter){
   
-    #cat(xx," of ",n.iter,"\n")  
+    cat(xx," of ",n.iter,"done! \n")  
     
     obj_dyn <- obj
     K       <- vector("list",length(obj))
