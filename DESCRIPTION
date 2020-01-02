@@ -8,6 +8,6 @@ Maintainer: Bastian Pfeifer <bastianxpfeifer@gmail.com>
 Depends: R (>= 2.14.2)
 Imports: methods, fastcluster, foreach, doParallel
 Suggests: SNF
-Description: to be filled in ...
+Description: We provide a simple hierarchical clustering and data fusion approach called HCfused for the detection of disease subtypes. Unless other algorithms the proposed approach naturally reports on the contribution of each single-omic to the data fusion process.
 License: GPL-2
 LazyLoad: yes
