@@ -4,10 +4,11 @@ library(SNFtool)
 library(cluster)
 library(iClusterPlus)
 library(PINSPlus)
+library(HCfused)
 
-source("NEMO.R")
+source("~/GitHub/HC-fused/NEMO.R")
 
-source("sim.R")
+source("~/GitHub/HC-fused/sim.R")
 
 mode="HC"
 this_method="ward.D"
@@ -45,18 +46,24 @@ for(my_var in VVV){
     print(xx)
 
     #HC-fused
-    res  <- sim2(TRUE, my_var, mode=mode)
+    res  <- sim2(FALSE, my_var, mode=mode)
     mat1 <- res$mat1
     mat2 <- res$mat2
     
-    obj   <- as.list(1:dim(mat2)[1])
-    res   <- HC_fused(obj, mat1, mat2, n.iter=10)
-    
-    m <- (res$NETWORK/max(res$NETWORK))
-    hc_final   <- hclust(as.dist(1-m), method=this_method)
-    sil        <- calc.SIL(as.dist(1-m),9, method=this_method)
+    #obj   <- as.list(1:dim(mat2)[1])
+    #res   <- HC_fused(obj, mat1, mat2, n.iter=10)
+    #m <- (res$NETWORK/max(res$NETWORK))
+
+    HCres  <- HC_fused_subtyping(omics = list(mat1 , mat2),
+     		max.k = 9, this_method = "ward.D", HC.iter = 10)	
+
+    P <- HCres$P  
+
+    hc_final   <- hclust(as.dist(P), method=this_method)
+    sil        <- calc.SIL(as.dist(P),9, method=this_method)
     k          <- as.numeric(names(which.max(sil)))
     cl         <- cutree(hc_final,k)
+
     #print(cl)
     OURS[[count]] <- c(OURS[[count]],clustComp(cl,truelab)$ARI) #rand.index(cl,truelab)
     OURS_sil[[count]] <- c(OURS_sil[[count]],sil[2]) 
@@ -136,7 +143,7 @@ for(my_var in VVV){
   PINS[[count]]       <- c(PINS[[count]],clustComp(cl_pins,truelab)$ARI)
 
   #NEMO
-  source("NEMO.R")
+  #source("NEMO.R")
   omics_list = list(as.data.frame(t(Data1)),as.data.frame(t(Data2))) 
   cl_nemo    = nemo.clustering(omics_list,num.neighbors=7)
   nag        = nemo.affinity.graph(omics_list, k = 7)
