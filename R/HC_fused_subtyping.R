@@ -51,6 +51,7 @@ if(parallel==TRUE){
 
 }
 
+#print(S)
 
 # Normalize 
 P        <- 1 - (P/max(P))
