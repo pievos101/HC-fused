@@ -55,7 +55,7 @@ for(my_var in VVV){
     #m <- (res$NETWORK/max(res$NETWORK))
 
     HCres  <- HC_fused_subtyping(omics = list(mat1 , mat2),
-     		max.k = 9, this_method = "ward.D", HC.iter = 10)	
+     		max.k = 9, this_method = "ward.D", HC.iter = 50)	
 
     P <- HCres$P  
 
@@ -172,16 +172,21 @@ for(my_var in VVV){
 par(mfrow=c(2,3))
 
 plot(sapply(OURS,mean), ylim=c(0,1), ylab="ARI", xaxt="n", xlab="variance", main="HC-fused",col="black", type="b", pch=19)
+points(sapply(OURS,sd), col="dark grey", type="b", pch=19,lty=2)
 axis(1,1:length(VVV),as.character(VVV))
 plot(sapply(SNF,mean), ylim=c(0,1), ylab="ARI", xaxt="n", xlab="variance", main="SNF",col="blue", type="b", pch=9)
+points(sapply(SNF,sd), col="dark grey", type="b", pch=19,lty=2)
 axis(1,1:length(VVV),as.character(VVV))
 #points(sapply(BAY,mean), ylim=c(0,1), ylab="ARI", xaxt="n", xlab="variance", main="",col="green", type="b", pch=10)
 #axis(1,1:length(VVV),as.character(VVV))
 plot(sapply(CON,mean), ylim=c(0,1), ylab="ARI", xaxt="n", xlab="variance", main="HC-concatenate",col="orange", type="b", pch=11)
+points(sapply(CON,sd), col="dark grey", type="b", pch=19,lty=2)
 axis(1,1:length(VVV),as.character(VVV))
 plot(sapply(PINS,mean), ylim=c(0,1), ylab="ARI", xaxt="n", xlab="variance", main="PINSPLUS",col="red", type="b", pch=12)
+points(sapply(PINS,sd), col="dark grey", type="b", pch=19,lty=2)
 axis(1,1:length(VVV),as.character(VVV))
 plot(sapply(X_NEMO,mean), ylim=c(0,1), ylab="ARI", xaxt="n", xlab="variance", main="NEMO",col="green", type="b", pch=5)
+points(sapply(X_NEMO,sd), col="dark grey", type="b", pch=19,lty=2)
 axis(1,1:length(VVV),as.character(VVV))
 #plot(sapply(SPEC,mean), ylim=c(0,1), ylab="ARI", xaxt="n", xlab="variance", main="SPECTRUM",col="black", type="b", pch=19)
 #axis(1,1:length(VVV),as.character(VVV))
@@ -195,7 +200,7 @@ axis(1,1:length(VVV),as.character(VVV))
 
 
 plot(sapply(OURS_sil,mean), ylim=c(0,1), ylab="SIL (k=3)", xaxt="n", xlab="variance", main="",col="black", type="b", pch=19)
-axis(1,1:length(VVV),as.character(VVV))
+#axis(1,1:length(VVV),as.character(VVV))
 points(sapply(SNF_sil,mean), ylim=c(0,1), ylab="SIL (k=3)", xaxt="n", xlab="variance", main="",col="blue", type="b", pch=9)
 #axis(1,1:length(VVV),as.character(VVV))
 #points(sapply(BAY_sil,mean), ylim=c(0,1), ylab="SIL (k=3)", xaxt="n", xlab="variance", main="",col="black", type="b", pch=10)
@@ -203,10 +208,11 @@ points(sapply(SNF_sil,mean), ylim=c(0,1), ylab="SIL (k=3)", xaxt="n", xlab="vari
 points(sapply(CON_sil,mean), ylim=c(0,1), ylab="SIL (k=3)", xaxt="n", xlab="variance", main="",col="orange", type="b", pch=11)
 #axis(1,1:length(VVV),as.character(VVV))
 points(sapply(NEMO_sil,mean), ylim=c(0,1), ylab="SIL (k=3)", xaxt="n", xlab="variance", main="",col="green", type="b", pch=5)
-a#xis(1,1:length(VVV),as.character(VVV))
+axis(1,1:length(VVV),as.character(VVV))
 
 #legend
 legend("topright", c("HC-fused", "SNF","HC-concatenate","NEMO"),
 col = c("black", "blue", "orange","green"), text.col = "black", 
 lty = c(1, 1, 1,1), pch = c(19, 9, 11,5),
 merge = TRUE, bg = FALSE,bty = "n")
+

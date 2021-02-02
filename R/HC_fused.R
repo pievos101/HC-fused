@@ -141,8 +141,8 @@ HC_fused <- function(MAT=list(), n.iter=100, print=FALSE){
     K[[count]] <- obj_dyn 
     count <- count + 1
     
-   }
-    
+   } 
+   
 } 
   
   #Get the contribution  

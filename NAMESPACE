@@ -15,5 +15,7 @@ export(HC_fused_get_contributions)
 
 export(HC_fused)
 export(HC_fused_subtyping)
+export(HC_fused_calc_NETWORK)
+
 
 

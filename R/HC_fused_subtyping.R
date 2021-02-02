@@ -73,6 +73,6 @@ mm <- paste("omic",1:(dim(S)[1]-1),sep="")
 
 rownames(S) <- c(mm,"omic_AND")
 
-return(list(cluster=cl_fused, P=P, S=S))
+return(list(cluster=cl_fused, P=P, S=S, SIL=max(sil_fused)))
 
 }# end of function
