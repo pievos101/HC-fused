@@ -44,7 +44,7 @@ survivalX <- read.table(paste(LOC,"survival", sep=""), header=TRUE)
 # define the patients 
 patientsX <- intersect(intersect(rownames(mRNAX),rownames(MethyX)),rownames(miRNAX))
 
-n.iter=50
+n.iter=30
 
 P_FUSED_3    <- rep(NaN,n.iter)
 P_FUSED_5    <- rep(NaN,n.iter)
@@ -156,47 +156,30 @@ survival <- survivalX[ids,]
 
 ## HCfused - 
 res_3        <- HC_fused_subtyping_kNN(list(mRNA,Methy,miRNA),
-                          this_method="kmeans",
+                          #this_method="kmeans",
                           HC.iter=20, k=3)
 
 cl_fused_3  <- res_3$cluster
 
 res_5        <- HC_fused_subtyping_kNN(list(mRNA,Methy,miRNA),
-                          this_method="kmeans",
+                          #this_method="kmeans",
                           HC.iter=20, k=5)
 
 cl_fused_5  <- res_5$cluster
 
 res_10        <- HC_fused_subtyping_kNN(list(mRNA,Methy,miRNA),
-                          this_method="kmeans",
+                          #this_method="kmeans",
                           HC.iter=20, k=10)
 
 cl_fused_10  <- res_10$cluster
 
-# -----------------------------------------------------------
-# Combined k approach
-fuse1 <- HC_fused_kNNGraph2(res_3$P, k=3)
-fuse2 <- HC_fused_kNNGraph2(res_5$P, k=5)
-fuse3 <- HC_fused_kNNGraph2(res_10$P, k=10)
 
-FUSE_binary <- list(fuse1,fuse2,fuse3)
+res_combined        <- HC_fused_subtyping_kNN(list(mRNA,Methy,miRNA),
+                          #this_method="kmeans",
+                          HC.iter=20, k=c(3,5,10))
 
-HC.iter=50
-P <- matrix(unlist(HC_fused_cpp_opt6(FUSE_binary, HC.iter)), 
-            nrow=dim(FUSE_binary[[1]])[1], byrow = TRUE)
-# Normalize 
-P        <- 1 - (P/max(P))
+cl_fused_combined   <- res_combined$cluster
 
-# Cluster the P matrix 
-this_method="kmeans"
-sil_fused   <- calc.SIL(as.dist(P), 10, method=this_method)
-k_fused     <- as.numeric(names(which.max(sil_fused)))
-
-cl_fused    <- kmeans(as.dist(P), k_fused)$cluster
-#hc_fused    <- hclust(as.dist(P), method=this_method)
-#cl_fused    <- cutree(hc_fused, k_fused)
-
-cl_fused_combined <- cl_fused
 #################################################################
 
 groups <- factor(cl_fused_3)

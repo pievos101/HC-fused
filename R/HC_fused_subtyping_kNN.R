@@ -1,8 +1,70 @@
-HC_fused_subtyping_kNN <- function(omics=list(), this_method="ward.D", 
-					HC.iter=20, k=5){
+
+HC_fused_subtyping_kNN <- function(omics=list(), this_method="ward.D", HC.iter=20, k=5){
 
 max.k=10
-#this_method="ward.D"
+
+kNN_LIST <- vector("list", length(k))
+
+# Calculate Fused Matrix for each k
+for (xx in 1:length(k)){
+
+	cat(paste("FUSE for k=",k[xx],"\n", sep=""))
+	P 	         <- HC_fused_subtyping_kNN_sub(omics=omics, this_method="ward.D", HC.iter=HC.iter, k=k[xx]) 
+	kNN_LIST[[xx]]  <- HC_fused_kNNGraph2(P, k=k[xx]) #Graph2 because Input are Distances
+}
+
+if(length(kNN_LIST)>1){
+	P <- matrix(unlist(HC_fused_cpp_opt6(kNN_LIST, HC.iter)), nrow=dim(kNN_LIST[[1]])[1], byrow = TRUE)
+	# Normalize 
+	P <- 1 - (P/max(P))
+}else{
+	P <- P
+}
+
+S <- NULL
+
+#C        <- estimateNumberOfClustersGivenGraph(1-P)[[2]]
+#cl_fused <- spectralClustering(1-P,C);
+
+# Cluster the P matrix 
+sil_fused  <- calc.SIL(as.dist(P), max.k, method=this_method)
+k_fused    <- as.numeric(names(which.max(sil_fused)))
+
+if(this_method=="kmeans"){
+
+ cat("Using kmeans for final clustering ...\n")  
+ cl_fused   <- kmeans(as.dist(P), k_fused)$cluster
+
+
+}else{ # hierarchical clustering
+
+ cat("Using hierarchical clustering for final clustering ...\n")
+ hc_fused   <- hclust(as.dist(P), method=this_method)
+ cl_fused   <- cutree(hc_fused, k_fused)
+
+}
+
+# S
+if(length(S)>0){
+ ss       <- apply(S,2,sum)
+ for(xx in 1:length(ss)){S[,xx] <- S[,xx]/ss[xx]}
+
+ mm <- paste("omic",1:(dim(S)[1]-1),sep="")
+
+ rownames(S) <- c(mm,"omic_AND")
+}
+
+#return(list(cluster=cl_fused, P=P))
+return(list(cluster=cl_fused, P=P, S=S, SIL=max(sil_fused)))
+
+}# end of function
+
+
+HC_fused_subtyping_kNN_sub <- function(omics=list(), this_method="ward.D", max.k=10,
+					HC.iter=20, k=5){
+
+#this_method="ward.D" 
+
 parallel=FALSE
 
 
@@ -50,34 +112,6 @@ if(parallel==TRUE){
 # Normalize 
 P        <- 1 - (P/max(P))
 
-# Cluster the P matrix 
-sil_fused  <- calc.SIL(as.dist(P), max.k, method=this_method)
-k_fused    <- as.numeric(names(which.max(sil_fused)))
-
-if(this_method=="kmeans"){
-
-cat("Using kmeans for final clustering ...\n")
-   
-cl_fused   <- kmeans(as.dist(P), k_fused)$cluster
-
-
-}else{ # hierarchical clustering
-
-hc_fused   <- hclust(as.dist(P), method=this_method)
-cl_fused   <- cutree(hc_fused, k_fused)
+return(P)
 
 }
-
-# S
-if(length(S)>0){
- ss       <- apply(S,2,sum)
- for(xx in 1:length(ss)){S[,xx] <- S[,xx]/ss[xx]}
-
- mm <- paste("omic",1:(dim(S)[1]-1),sep="")
-
- rownames(S) <- c(mm,"omic_AND")
-}
-
-return(list(cluster=cl_fused, P=P, S=S, SIL=max(sil_fused)))
-
-}# end of function
