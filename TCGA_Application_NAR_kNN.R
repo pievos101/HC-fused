@@ -46,6 +46,7 @@ patientsX <- intersect(intersect(rownames(mRNAX),rownames(MethyX)),rownames(miRN
 
 n.iter=30
 
+P_FUSED      <- rep(NaN,n.iter)
 P_FUSED_3    <- rep(NaN,n.iter)
 P_FUSED_5    <- rep(NaN,n.iter)
 P_FUSED_10   <- rep(NaN,n.iter)
@@ -155,53 +156,46 @@ survival <- survivalX[ids,]
 #### CLUSTERING 
 
 ## HCfused - 
-res_3        <- HC_fused_subtyping_kNN(list(mRNA,Methy,miRNA),
+#res_3        <- HC_fused_subtyping_kNN(list(mRNA,Methy,miRNA),
                           #this_method="kmeans",
-                          HC.iter=20, k=3)
+#                          HC.iter=20, k=3)
 
-cl_fused_3  <- res_3$cluster
+#cl_fused_3  <- res_3$cluster
 
-res_5        <- HC_fused_subtyping_kNN(list(mRNA,Methy,miRNA),
+#res_5        <- HC_fused_subtyping_kNN(list(mRNA,Methy,miRNA),
                           #this_method="kmeans",
-                          HC.iter=20, k=5)
+#                          HC.iter=20, k=5)
 
-cl_fused_5  <- res_5$cluster
+#cl_fused_5  <- res_5$cluster
 
-res_10        <- HC_fused_subtyping_kNN(list(mRNA,Methy,miRNA),
+#res_10        <- HC_fused_subtyping_kNN(list(mRNA,Methy,miRNA),
                           #this_method="kmeans",
-                          HC.iter=20, k=10)
+#                          HC.iter=20, k=10)
 
-cl_fused_10  <- res_10$cluster
+#cl_fused_10  <- res_10$cluster
+
+## HCfused - original
+
+res                 <- HC_fused_subtyping(list(mRNA,Methy,miRNA), max.k=10, 
+                          HC.iter=30, use_opt_code=TRUE)
+
+cl_fused            <- res$cluster
 
 
 res_combined        <- HC_fused_subtyping_kNN(list(mRNA,Methy,miRNA),
                           #this_method="kmeans",
-                          HC.iter=20, k=c(3,5,10))
+                          HC.iter=30, k=c(3,5,7))
 
 cl_fused_combined   <- res_combined$cluster
 
 #################################################################
 
-groups <- factor(cl_fused_3)
+groups <- factor(cl_fused)
 names(groups) = rownames(survival)
 coxFit <- coxph(Surv(time = Survival, event = Death) ~ groups, data = survival, ties="exact")
 cox_fused <- round(summary(coxFit)$sctest[3],digits = 40);
 #print(cox_fused)
-P_FUSED_3[xx] = round(summary(coxFit)$sctest[3],digits = 40);
-
-groups <- factor(cl_fused_5)
-names(groups) = rownames(survival)
-coxFit <- coxph(Surv(time = Survival, event = Death) ~ groups, data = survival, ties="exact")
-cox_fused <- round(summary(coxFit)$sctest[3],digits = 40);
-#print(cox_fused)
-P_FUSED_5[xx] = round(summary(coxFit)$sctest[3],digits = 40);
-
-groups <- factor(cl_fused_10)
-names(groups) = rownames(survival)
-coxFit <- coxph(Surv(time = Survival, event = Death) ~ groups, data = survival, ties="exact")
-cox_fused <- round(summary(coxFit)$sctest[3],digits = 40);
-#print(cox_fused)
-P_FUSED_10[xx] = round(summary(coxFit)$sctest[3],digits = 40);
+P_FUSED[xx] = round(summary(coxFit)$sctest[3],digits = 40);
 
 groups <- factor(cl_fused_combined)
 names(groups) = rownames(survival)
@@ -210,14 +204,14 @@ cox_fused <- round(summary(coxFit)$sctest[3],digits = 40);
 #print(cox_fused)
 P_FUSED_combined[xx] = round(summary(coxFit)$sctest[3],digits = 40);
 
-print(cbind(P_FUSED_3, P_FUSED_5, P_FUSED_10, P_FUSED_combined))
+print(cbind(P_FUSED, P_FUSED_combined))
 
 
 }#end of loop
 
-RESULT     <- cbind(P_FUSED_3, P_FUSED_5, P_FUSED_10, P_FUSED_combined)
+RESULT     <- cbind(P_FUSED, P_FUSED_combined)
 RESULT_log <- -log10(RESULT)
-colnames(RESULT_log) <- c("P_FUSED_3","P_FUSED_5","P_FUSED_10","P_FUSED_c")
+colnames(RESULT_log) <- c("HC_FUSED","HC_FUSED_kNN")
 
 boxplot(RESULT_log, col="grey", ylab="-log10(logrank p-value)", outline=FALSE)
 abline(h=-log10(0.05), col="red")
