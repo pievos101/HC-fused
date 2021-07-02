@@ -25,7 +25,7 @@ do.PCA <- FALSE
 cat("Reading in TCGA data ... \n")
 
 #aml, gbm, lung, sarcoma, colon, liver, ovarian, breast, kidney, melanoma
-cancertype <- "kidney"
+cancertype <- "aml"
 LOC <- paste("~/TCGA_data/NAR Data/",cancertype,"/", sep="")
 
 #mRNA
@@ -155,7 +155,7 @@ survival <- survivalX[ids,]
 
 ## HCfused - HC.iter=20 !!!
 res        <- HC_fused_subtyping(list(mRNA,Methy,miRNA), max.k=10, 
-                          HC.iter=30, use_opt_code=TRUE)
+                          HC.iter=50, use_opt_code=TRUE, use_kNNGraph=TRUE, k=5)
 
 cl_fused   <- res$cluster
 
@@ -270,50 +270,3 @@ boxplot(RESULT_log, col="grey", ylab="-log10(logrank p-value)", outline=FALSE)
 abline(h=-log10(0.05), col="red")
 
 stop("Allet jut!")
-
-################################################################
-############PLOTS###############################################
-
-p_death <- rownames(mRNA)[TRUELAB==1]
-
-COL           <- rep("black",length(TRUELAB))
-#COL[TRUELAB==1] <- "red"
-
-par(mfrow=c(2,2))
-
-dend_1 <- as.dendrogram(hc1)
-COL_1  <- COL
-ids    <- match(p_death,labels(dend_1))
-COL_1[ids] <- "red"
-labels_colors(dend_1) <- COL_1
-dend_1 <- dend_1 %>% set("labels_cex", c(0.5))
-plot(dend_1)
-
-dend_2 <- as.dendrogram(hc2)
-COL_2  <- COL
-ids    <- match(p_death,labels(dend_2))
-COL_2[ids] <- "red"
-labels_colors(dend_2) <- COL_2
-dend_2 <- dend_2 %>% set("labels_cex", c(0.5))
-plot(dend_2)
-
-dend_3 <- as.dendrogram(hc3)
-COL_3  <- COL
-ids    <- match(p_death,labels(dend_3))
-COL_3[ids] <- "red"
-labels_colors(dend_3) <- COL_3
-dend_3 <- dend_3 %>% set("labels_cex", c(0.5))
-plot(dend_3)
-
-dend_fused <- as.dendrogram(hc_fused)
-COL_fused  <- COL
-ids    <- match(p_death,labels(dend_fused))
-COL_fused[ids] <- "red"
-labels_colors(dend_fused) <- COL_fused
-dend_fused <- dend_fused %>% set("labels_cex", c(0.5))
-plot(dend_fused)
-
-
-
-
-

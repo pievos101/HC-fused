@@ -1,3 +1,6 @@
+useDynLib(HCfused, .registration=TRUE)
+importFrom(Rcpp, evalCpp)
+exportPattern("^[[:alpha:]]+")
 
 import(methods)
 import(cluster)
@@ -16,7 +19,8 @@ export(HC_fused_calc_distances)
 
 export(HC_fused)
 export(HC_fused_subtyping)
+export(HC_fused_subtyping_kNN)
 export(HC_fused_calc_NETWORK)
-
-
+export(HC_fused_kNNGraph)
+export(HC_fused_kNNGraph2)
 

@@ -1,31 +1,22 @@
-HC_fused_subtyping <- function(omics=list(), max.k=10, this_method="ward.D", 
-					HC.iter=20, use_opt_code=TRUE){
+HC_fused_subtyping_kNN <- function(omics=list(), this_method="ward.D", 
+					HC.iter=20, k=5){
 
+max.k=10
+#this_method="ward.D"
 parallel=FALSE
 
 
 omics_binary <- vector("list", length(omics))
 
 
- for (xx in 1:length(omics)){
-
-	omic  <- omics[[xx]]	
-
-	sil   <- calc.SIL(dist(omic), max.k, method=this_method)
-	id    <- which.max(sil)
- 	k     <- as.numeric(names(sil)[id])
-
-	hc    <- hclust(dist(omic), method=this_method)
-	cl    <- cutree(hc, k)
-
-	mat   <- calc.BINARY(cl)	
+# Create kNN Graph
+for (xx in 1:length(omics)){
         
-	omics_binary[[xx]] <- mat 
-       
- }
+	omics_binary[[xx]] <- HC_fused_kNNGraph(omics[[xx]], k) 
+}
 
 
-# Now, fuse thes binary matrices 
+# Now, fuse these binary matrices 
 
 if(parallel==TRUE){
 
@@ -49,14 +40,9 @@ if(parallel==TRUE){
 
 }else{
 
-       if(use_opt_code==FALSE){ 
-        res <- HC_fused(omics_binary, n.iter = HC.iter)
-        P   <- res$NETWORK
-	 S   <- res$SOURCE
-       }else{
-        P <- matrix(unlist(HC_fused_cpp_opt6(omics_binary, HC.iter)), nrow=dim(omics_binary[[xx]])[1], byrow = TRUE)
-        S <- NULL
-       }
+       P <- matrix(unlist(HC_fused_cpp_opt6(omics_binary, HC.iter)), nrow=dim(omics_binary[[xx]])[1], byrow = TRUE)
+       S <- NULL
+       
 }
 
 #print(S)
@@ -65,11 +51,22 @@ if(parallel==TRUE){
 P        <- 1 - (P/max(P))
 
 # Cluster the P matrix 
-sil_fused  <- calc.SIL(as.dist(P),max.k, method=this_method)
+sil_fused  <- calc.SIL(as.dist(P), max.k, method=this_method)
 k_fused    <- as.numeric(names(which.max(sil_fused)))
+
+if(this_method=="kmeans"){
+
+cat("Using kmeans for final clustering ...\n")
+   
+cl_fused   <- kmeans(as.dist(P), k_fused)$cluster
+
+
+}else{ # hierarchical clustering
 
 hc_fused   <- hclust(as.dist(P), method=this_method)
 cl_fused   <- cutree(hc_fused, k_fused)
+
+}
 
 # S
 if(length(S)>0){
