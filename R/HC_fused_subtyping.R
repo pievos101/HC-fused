@@ -68,6 +68,8 @@ P        <- 1 - (P/max(P))
 sil_fused  <- calc.SIL(as.dist(P),max.k, method=this_method)
 k_fused    <- as.numeric(names(which.max(sil_fused)))
 
+cat(paste("Hierarchical clustering with ", this_method, "\n", sep=""))
+
 hc_fused   <- hclust(as.dist(P), method=this_method)
 cl_fused   <- cutree(hc_fused, k_fused)
 

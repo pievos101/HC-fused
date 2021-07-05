@@ -55,7 +55,9 @@ P_FUSED_combined_1   <- rep(NaN,n.iter)
 P_FUSED_combined_2   <- rep(NaN,n.iter)
 P_FUSED_combined_3   <- rep(NaN,n.iter)
 P_FUSED_combined_4   <- rep(NaN,n.iter)
-
+P_FUSED_combined_5   <- rep(NaN,n.iter)
+P_FUSED_combined_6   <- rep(NaN,n.iter)
+P_FUSED_combined_7   <- rep(NaN,n.iter)
 
 this_method = "ward.D"
 
@@ -155,61 +157,26 @@ if(is.element(cancertype,c("breast","lung","gbm"))){
 
 survival <- survivalX[ids,]
 
-#print(table(survival[,3]))
-
-#### CLUSTERING 
-
-## HCfused - 
-#res_3        <- HC_fused_subtyping_kNN(list(mRNA,Methy,miRNA),
-                          #this_method="kmeans",
-#                          HC.iter=20, k=3)
-
-#cl_fused_3  <- res_3$cluster
-
-#res_5        <- HC_fused_subtyping_kNN(list(mRNA,Methy,miRNA),
-                          #this_method="kmeans",
-#                          HC.iter=20, k=5)
-
-#cl_fused_5  <- res_5$cluster
-
-#res_10        <- HC_fused_subtyping_kNN(list(mRNA,Methy,miRNA),
-                          #this_method="kmeans",
-#                          HC.iter=20, k=10)
-
-#cl_fused_10  <- res_10$cluster
-
 ## HCfused - original
 HC.iter=30
-res                 <- HC_fused_subtyping(list(mRNA,Methy,miRNA), max.k=10, 
-                          HC.iter=HC.iter, use_opt_code=TRUE)
+res                 <- HC_fused_subtyping_ens(list(mRNA,Methy,miRNA), max.k=10, 
+                          this_method=c("ward.D","ward.D2"),
+                          HC.iter=HC.iter)
 
 cl_fused            <- res$cluster
 
-res_combined        <- HC_fused_subtyping_kNN(list(mRNA,Methy,miRNA),
-                          this_method="spectral",
-                          HC.iter=HC.iter, k=c(3))
-
+res_combined        <- HC_fused_subtyping_ens(list(mRNA,Methy,miRNA),
+                          this_method=c("complete","single"),
+                          HC.iter=HC.iter) 
+                          
 cl_fused_combined_1 <- res_combined$cluster
 
 
-res_combined        <- HC_fused_subtyping_kNN(list(mRNA,Methy,miRNA),
-                          this_method="spectral",
-                          HC.iter=HC.iter, k=c(3,5))
+res_combined        <- HC_fused_subtyping_ens(list(mRNA,Methy,miRNA),
+                          this_method=c("average","median"),
+                          HC.iter=HC.iter)
 
 cl_fused_combined_2 <- res_combined$cluster
-
-#
-res_combined        <- HC_fused_subtyping_kNN(list(mRNA,Methy,miRNA),
-                          this_method="spectral",
-                          HC.iter=HC.iter, k=c(3,5,10))
-
-cl_fused_combined_3 <- res_combined$cluster
-
-res_combined        <- HC_fused_subtyping_kNN(list(mRNA,Methy,miRNA),
-                          this_method="spectral",
-                          HC.iter=HC.iter, k=c(3,5,10,20))
-
-cl_fused_combined_4 <- res_combined$cluster
 
 
 #################################################################
@@ -235,34 +202,22 @@ cox_fused <- round(summary(coxFit)$sctest[3],digits = 40);
 #print(cox_fused)
 P_FUSED_combined_2[xx] = round(summary(coxFit)$sctest[3],digits = 40);
 
-groups <- factor(cl_fused_combined_3)
-names(groups) = rownames(survival)
-coxFit <- coxph(Surv(time = Survival, event = Death) ~ groups, data = survival, ties="exact")
-cox_fused <- round(summary(coxFit)$sctest[3],digits = 40);
-#print(cox_fused)
-P_FUSED_combined_3[xx] = round(summary(coxFit)$sctest[3],digits = 40);
 
-groups <- factor(cl_fused_combined_4)
-names(groups) = rownames(survival)
-coxFit <- coxph(Surv(time = Survival, event = Death) ~ groups, data = survival, ties="exact")
-cox_fused <- round(summary(coxFit)$sctest[3],digits = 40);
-#print(cox_fused)
-P_FUSED_combined_4[xx] = round(summary(coxFit)$sctest[3],digits = 40);
+RESULT <- cbind(P_FUSED, P_FUSED_combined_1,P_FUSED_combined_2)
 
+colnames(RESULT) <- c("ward.D-ward.D2","complete-single","average-median")
 
-print(cbind(P_FUSED, P_FUSED_combined_1,P_FUSED_combined_2,P_FUSED_combined_3,
-              P_FUSED_combined_4))
-
+print(RESULT)
 
 }#end of loop
 
-RESULT     <- cbind(P_FUSED, P_FUSED_combined_1,P_FUSED_combined_2,
-                    P_FUSED_combined_3, P_FUSED_combined_4)
 RESULT_log <- -log10(RESULT)
-colnames(RESULT_log) <- c("HC_FUSED","HC_FUSED_kNN_1","HC_FUSED_kNN_2",
-  "HC_FUSED_kNN_3","HC_FUSED_kNN_4")
 
-boxplot(RESULT_log, col="grey", ylab="-log10(logrank p-value)", outline=FALSE)
+#colnames(RESULT_log) <- c("HC_FUSED","HC_FUSED_kNN_1","HC_FUSED_kNN_2",
+#  "HC_FUSED_kNN_3","HC_FUSED_kNN_4")
+
+boxplot(RESULT_log, col="grey", ylab="-log10(logrank p-value)", las=2,
+  outline=FALSE)
 abline(h=-log10(0.05), col="red")
 
 stop("Allet jut!")

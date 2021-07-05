@@ -23,10 +23,17 @@ if(length(kNN_LIST)>1){
 
 S <- NULL
 
-#C        <- estimateNumberOfClustersGivenGraph(1-P)[[2]]
-#cl_fused <- spectralClustering(1-P,C);
 
-# Cluster the P matrix 
+if(this_method=="spectral"){
+
+ cat("Using spectral for final clustering ...\n")  
+ C         <- estimateNumberOfClustersGivenGraph(1-P)[[2]]
+ cl_fused  <- spectralClustering(1-P,C);
+ return(list(cluster=cl_fused, P=P, S=NULL, SIL=NULL))
+
+}
+
+# Find optimal k
 sil_fused  <- calc.SIL(as.dist(P), max.k, method=this_method)
 k_fused    <- as.numeric(names(which.max(sil_fused)))
 
