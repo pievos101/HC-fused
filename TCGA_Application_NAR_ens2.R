@@ -26,7 +26,7 @@ cat("Reading in TCGA data ... \n")
 
 # aml is slow
 #aml, gbm, lung, sarcoma, colon, liver, ovarian, breast, kidney, melanoma
-cancertype <- "gbm"
+cancertype <- "ovarian"
 LOC <- paste("~/TCGA_data/NAR Data/",cancertype,"/", sep="")
 
 #mRNA
@@ -216,7 +216,7 @@ RESULT_log <- -log10(RESULT)
 #colnames(RESULT_log) <- c("HC_FUSED","HC_FUSED_kNN_1","HC_FUSED_kNN_2",
 #  "HC_FUSED_kNN_3","HC_FUSED_kNN_4")
 
-boxplot(RESULT_log, col="grey", ylab="-log10(logrank p-value)", las=2,
+boxplot(RESULT_log, col="grey", ylab="-log10(logrank p-value)", las=1,
   outline=FALSE)
 abline(h=-log10(0.05), col="red")
 
