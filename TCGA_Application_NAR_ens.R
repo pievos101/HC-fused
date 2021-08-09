@@ -26,7 +26,7 @@ cat("Reading in TCGA data ... \n")
 
 # aml is slow
 #aml, gbm, lung, sarcoma, colon, liver, ovarian, breast, kidney, melanoma
-cancertype <- "aml"
+cancertype <- "colon"
 LOC <- paste("~/TCGA_data/NAR Data/",cancertype,"/", sep="")
 
 #mRNA
@@ -297,7 +297,7 @@ RESULT <- cbind(P_FUSED, P_FUSED_combined_1,P_FUSED_combined_2,
               P_FUSED_combined_6,P_FUSED_combined_7)
 
 colnames(RESULT) <- c("ward.D","ward.D2","single","complete",
-                      "average","myquitty","median","centroid")
+                      "average","mcquitty","median","centroid")
 
 print(RESULT)
 
