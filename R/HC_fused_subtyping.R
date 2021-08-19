@@ -50,11 +50,12 @@ if(parallel==TRUE){
 }else{
 
        if(use_opt_code==FALSE){ 
-        res <- HC_fused(omics_binary, n.iter = HC.iter)
+        res <- HC_fused(omics_binary, n.iter = HC.iter, use_opt_code=FALSE)
         P   <- res$NETWORK
 	 S   <- res$SOURCE
        }else{
-        P <- matrix(unlist(HC_fused_cpp_opt6(omics_binary, HC.iter)), nrow=dim(omics_binary[[xx]])[1], byrow = TRUE)
+        P <- matrix(unlist(HC_fused_cpp_opt6(omics_binary, HC.iter)), 
+        	nrow=dim(omics_binary[[1]])[1], byrow = TRUE)
         S <- NULL
        }
 }
