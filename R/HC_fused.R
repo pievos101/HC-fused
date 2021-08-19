@@ -7,7 +7,7 @@ HC_fused <- function(MAT=list(), n.iter=100, use_opt_code=TRUE, print=FALSE){
   if(use_opt_code==TRUE){
 
     P <- matrix(unlist(HC_fused_cpp_opt6(MAT, n.iter)), 
-                nrow=dim(omics_binary[[1]])[1], byrow = TRUE)
+                nrow=dim(MAT[[1]])[1], byrow = TRUE)
     S <- NULL
 
     return(list(NETWORK=P, SOURCE=S))
