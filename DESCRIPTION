@@ -5,9 +5,9 @@ Version: 1.0.1
 Date: 2019-12-25
 Author: Bastian Pfeifer
 Maintainer: Bastian Pfeifer <bastianxpfeifer@gmail.com>
-Depends: R (>= 2.14.2)
-Imports: methods, fastcluster, foreach, doParallel
-Suggests: SNF
+Depends: R (>= 2.14.2), fastcluster, cluster 
+Imports: methods 
+Suggests: foreach, doParallel
 Description: We provide a simple hierarchical clustering and data fusion approach called HCfused for the detection of disease subtypes. Unless other algorithms the proposed approach naturally reports on the contribution of each single-omic to the data fusion process.
 License: GPL (>= 2)
 Imports: Rcpp (>= 1.0.6)
