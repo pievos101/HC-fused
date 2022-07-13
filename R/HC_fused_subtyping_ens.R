@@ -3,15 +3,13 @@ HC_fused_subtyping_ens <- function(omics=list(), this_method="ward.D", HC.iter=2
 
 ens_LIST <- vector("list", length(this_method))
 
-# Calculate Fused Matrix for each k
+# Calculate Fused Matrix for each method
 for (xx in 1:length(this_method)){
 
 	cat(paste("FUSE for method=",this_method[xx],"\n", sep=""))
 
 	res              <- HC_fused_subtyping(omics=omics, this_method=this_method[xx], HC.iter=HC.iter, max.k=max.k, use_opt_code=TRUE) 
 	ens_LIST[[xx]]   <- calc.BINARY(res$cluster)	
-
-
 }
 
 if(length(ens_LIST)>1){
