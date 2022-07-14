@@ -17,7 +17,7 @@ cat("Reading in TCGA data ... \n")
 
 # aml is slow
 #aml, gbm, lung, sarcoma, colon, liver, ovarian, breast, kidney, melanoma
-cancertype <- "kidney"
+cancertype <- "sarcoma"
 LOC <- paste("~/TCGA_data/NAR Data/",cancertype,"/", sep="")
 
 #mRNA

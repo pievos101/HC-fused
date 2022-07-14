@@ -25,8 +25,8 @@ gann <- ga(
 	type = "real-valued", 
 	fitness = check_ensemble, methods, INPUT, lower = c(1,1), upper = c(8,8), 
 	#seed = 1234, 
-	elitism = 10, maxiter = 10, popSize = 10, 
-	run = 10, parallel=FALSE)
+	elitism = 20, maxiter = 20, popSize = 20, 
+	run = 20, parallel=FALSE)
 
 
 return(gann)
