@@ -8,6 +8,8 @@ https://www.sciencedirect.com/science/article/pii/S1532046420302641
 
 Please see also
 
+Pfeifer, Bastian, et al. "Integrative hierarchical ensemble clustering for improved disease subtype discovery." 2021 IEEE International Conference on Bioinformatics and Biomedicine (BIBM). IEEE, 2021.
+
 https://ieeexplore.ieee.org/abstract/document/9669608
 
 for integrative hierarchical ensemble clustering with HC-fused.
