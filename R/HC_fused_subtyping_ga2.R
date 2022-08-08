@@ -1,18 +1,16 @@
 # Ensemble clustering with genetic algorithm
 
 # Fitness function
-check_ensemble <- function(x, methods=FALSE, omics_in=FALSE, fix.k=NaN){
-	ens1 <- round(x[1])
-	ens2 <- round(x[2])
-	ens1 <- methods[ens1]
-	ens2 <- methods[ens2]
-	res  <- HC_fused_subtyping_ens(omics=omics_in, this_method=c(ens1, ens2), fix.k=fix.k)
-	print(res$SIL)
+check_ensemble2 <- function(x, methods=FALSE, omics_in=FALSE, fix.k=NaN){
+	ens  <- round(x)
+	ens  <- methods[ens]
+	res  <- HC_fused_subtyping_ens2(omics=omics_in, this_method=ens)
+	#print(res$SIL)
 	return(res$SIL)
 } # end of fitness function
 
 
-HC_fused_subtyping_ga <- function(INPUT=list(), HC.iter=30, max.k=10, fix.k=NaN){
+HC_fused_subtyping_ga2 <- function(INPUT=list(), HC.iter=30, max.k=10, fix.k=NaN){
 
 require(GA)
 
@@ -23,7 +21,8 @@ methods = c("single", "complete", "average", "mcquitty", "ward.D",
 # Perform the genetic algorithm
 gann <- ga(
 	type = "real-valued", 
-	fitness = check_ensemble, methods, INPUT, fix.k, lower = c(1,1), upper = c(8,8), 
+	fitness = check_ensemble2, methods, INPUT, fix.k=fix.k, 
+	lower = rep(1,length(INPUT)), upper = rep(8,length(INPUT)), 
 	#seed = 1234, 
 	elitism = 20, maxiter = 20, popSize = 20, 
 	run = 20, parallel=FALSE)

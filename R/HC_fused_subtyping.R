@@ -1,4 +1,4 @@
-HC_fused_subtyping <- function(omics=list(), max.k=10, this_method="ward.D", 
+HC_fused_subtyping <- function(omics=list(), max.k=10, fix.k=NaN, this_method="ward.D", 
 					HC.iter=20, use_opt_code=TRUE){
 
 parallel=FALSE
@@ -11,9 +11,13 @@ omics_binary <- vector("list", length(omics))
 
 	omic  <- omics[[xx]]	
 
-	sil   <- calc.SIL(dist(omic), max.k, method=this_method)
-	id    <- which.max(sil)
- 	k     <- as.numeric(names(sil)[id])
+	if(is.na(fix.k)){
+		sil   <- calc.SIL(dist(omic), max.k, method=this_method)
+		id    <- which.max(sil)
+		k     <- as.numeric(names(sil)[id])
+	}else{
+		k <- fix.k
+	}
 
 	hc    <- hclust(dist(omic), method=this_method)
 	cl    <- cutree(hc, k)
@@ -42,7 +46,7 @@ if(parallel==TRUE){
 	P   <- lapply(res,function(x){return(x$NETWORK)})
 	P   <- Reduce("+", P)
 
-       S   <- lapply(res,function(x){return(x$SOURCE)})
+    S   <- lapply(res,function(x){return(x$SOURCE)})
 	S   <- Reduce("+", S)
   
 	stopCluster(cl)
@@ -52,7 +56,7 @@ if(parallel==TRUE){
        if(use_opt_code==FALSE){ 
         res <- HC_fused(omics_binary, n.iter = HC.iter, use_opt_code=FALSE)
         P   <- res$NETWORK
-	 S   <- res$SOURCE
+	 	S   <- res$SOURCE
        }else{
         P <- matrix(unlist(HC_fused_cpp_opt6(omics_binary, HC.iter)), 
         	nrow=dim(omics_binary[[1]])[1], byrow = TRUE)
@@ -66,8 +70,13 @@ if(parallel==TRUE){
 P        <- 1 - (P/max(P))
 
 # Cluster the P matrix 
-sil_fused  <- calc.SIL(as.dist(P),max.k, method=this_method)
-k_fused    <- as.numeric(names(which.max(sil_fused)))
+if(is.na(fix.k)){
+	sil_fused  <- calc.SIL(as.dist(P),max.k, method=this_method)
+	k_fused    <- as.numeric(names(which.max(sil_fused)))
+}else{
+	sil_fused  <- calc.SIL(as.dist(P),max.k, fix.k=fix.k, method=this_method)
+	k_fused    <- fix.k
+}
 
 cat(paste("Hierarchical clustering with ", this_method, "\n", sep=""))
 
@@ -84,6 +93,8 @@ if(length(S)>0){
  rownames(S) <- c(mm,"omic_AND")
 }
 
-return(list(cluster=cl_fused, P=P, S=S, SIL=max(sil_fused)))
+
+return(list(cluster=cl_fused, P=P, S=S, SIL=NaN))
+
 
 }# end of function

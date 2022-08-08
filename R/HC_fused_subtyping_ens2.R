@@ -1,5 +1,5 @@
 
-HC_fused_subtyping_ens <- function(omics=list(), this_method="ward.D", HC.iter=20, max.k=10, fix.k=NaN){
+HC_fused_subtyping_ens2 <- function(omics=list(), this_method="ward.D", HC.iter=20, max.k=10, fix.k=NaN){
 
 ens_LIST <- vector("list", length(this_method))
 
@@ -8,7 +8,7 @@ for (xx in 1:length(this_method)){
 
 	cat(paste("FUSE for method=",this_method[xx],"\n", sep=""))
 
-	res              <- HC_fused_subtyping(omics=omics, this_method=this_method[xx], HC.iter=HC.iter, max.k=max.k, fix.k=fix.k, use_opt_code=TRUE) 
+	res              <- HC_fused_subtyping(omics=list(omics[[xx]]), this_method=this_method[xx], HC.iter=HC.iter, max.k=max.k, fix.k=fix.k, use_opt_code=TRUE) 
 	ens_LIST[[xx]]   <- calc.BINARY(res$cluster)	
 }
 
@@ -27,16 +27,16 @@ S <- NULL
 CL_LIST     <- vector("list", length(this_method))
 
 for(xx in 1:length(this_method)){
- if(is.na(fix.k)){
-	sil_fused  <- calc.SIL(as.dist(P), max.k, method=this_method[xx])
-	k_fused    <- as.numeric(names(which.max(sil_fused)))
-}else{
-	sil_fused  <- calc.SIL(as.dist(P), max.k, fix.k=fix.k, method=this_method[xx])
-	k_fused    <- fix.k
-}
-hc_fused   <- hclust(as.dist(P), method=this_method[xx])
-cl_fused   <- cutree(hc_fused, k_fused)
-CL_LIST[[xx]]  <- cl_fused
+	if(is.na(fix.k)){
+		sil_fused  <- calc.SIL(as.dist(P), max.k, method=this_method[xx])
+		k_fused    <- as.numeric(names(which.max(sil_fused)))
+	}else{
+		sil_fused  <- calc.SIL(as.dist(P), max.k, fix.k=fix.k, method=this_method[xx])
+		k_fused    <- fix.k
+	}
+ hc_fused   <- hclust(as.dist(P), method=this_method[xx])
+ cl_fused   <- cutree(hc_fused, k_fused)
+ CL_LIST[[xx]]  <- cl_fused
 }
 
 cl_fused <- combine_clusters(CL_LIST)
