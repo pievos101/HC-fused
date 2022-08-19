@@ -1,4 +1,4 @@
-# HC-fused - a hierarchical clustering and data fusion approach for disease subtype discovery
+# Multi-view hierarchical clustering 
 
 Citation:
 
