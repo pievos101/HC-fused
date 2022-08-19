@@ -1,4 +1,4 @@
-# HCfused: Multi-view hierarchical clustering 
+# HCfused: multi-view hierarchical clustering 
 
 Citation:
 
