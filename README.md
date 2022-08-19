@@ -1,4 +1,4 @@
-# HCfused: multi-view hierarchical clustering 
+# HCfused: multi-view hierarchical clustering in R 
 
 Citation:
 
