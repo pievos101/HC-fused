@@ -70,10 +70,10 @@ affinityMatrix = res$P
 
 ## Hierarchical ensemble clustering
 
-
+... will be available soon ...
 
 ## References
-Please cie the following work in case you find the package useful:
+Please cie the following work in case you find the package useful.
 
 
 Pfeifer, Bastian, and Michael G. Schimek. "A hierarchical clustering and data fusion approach for disease subtype discovery." Journal of Biomedical Informatics 113 (2021): 103636.
