@@ -33,3 +33,5 @@ export(HC_fused_kNNGraph2)
 
 # general usage exports
 export(HCmv)
+export(association)
+export(HCfuse)

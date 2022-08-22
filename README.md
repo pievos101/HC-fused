@@ -15,10 +15,11 @@ Loading the outcome vector
 data(target)
 ```
 
-Multi-view clustering using HCfused
+Multi-view clustering using HCfused.
+Let's cluster the views using the ward.D method.
 
 ```{r}
-res = HCmv(list(view1, view2))
+res = HCmv(list(view1, view2), method="ward.D")
 ```
 
 The fused matrix can be accesed via
@@ -40,6 +41,30 @@ cl = cutree(fused, k=length(unique(target)))
 require(aricode)
 ARI(cl, target)
 NMI(cl, target)
+```
+
+## The fusion algorithm HCfuse
+
+You may want to use your own clustering algorithm and just employ the hierarchical fusion algorithm.
+
+For instance, lets assume we have two cluster solutions cl1 and cl2.
+
+```{r}
+cl1 = c(1,1,1,2,2,2,3,3,3)
+cl2 = c(1,1,2,2,2,3,3,3,3)
+```
+
+Now, we need to create the co-association matrices
+
+```{r}
+ass1 = association(cl1)
+ass2 = association(cl2)
+```
+
+These two binary matrices can now be fused
+
+```{r}
+affinityMatrix = HCfuse(list(ass1, ass2))
 ```
 
 ## References
