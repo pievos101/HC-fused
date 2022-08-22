@@ -61,12 +61,12 @@ which can be clustered by any clustering algorithm
 ```{r}
 distanceMatrix = 1 - affinityMatrix/max(affinityMatrix)
 fused = hclust(as.dist(distanceMatrix), method="average")
+cl = cutree(fused, k=k)
 ```
 
 Let's check the performance based on the Adjusted R Index (ARI)
 
 ```{r}
-cl = cutree(fused, k=k)
 require(aricode)
 ARI(cl, target)
 NMI(cl, target)
