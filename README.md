@@ -1,6 +1,41 @@
 # HCfused: multi-view hierarchical clustering in R 
 
-Citation:
+## Basic usage
+
+Loading example data views
+
+```{r}
+data(view1)
+data(view2)
+```
+
+Loading the outcome vector
+
+```{r}
+data(target)
+```
+
+Multi-view clustering using HCfused
+
+```{r}
+res = HCmv(list(view1, view2))
+```
+
+The fused matrix can be accesed via
+
+```{r}
+res$P
+```
+
+which can be clustered again
+
+
+```{r}
+fused = hclust(as.dist(res$P), method="ward.D")
+```{r}
+
+
+## References
 
 Pfeifer, Bastian, and Michael G. Schimek. "A hierarchical clustering and data fusion approach for disease subtype discovery." Journal of Biomedical Informatics 113 (2021): 103636.
 

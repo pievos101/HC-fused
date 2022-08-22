@@ -5,7 +5,7 @@ Version: 1.0.2
 Date: 2019-12-25
 Author: Bastian Pfeifer
 Maintainer: Bastian Pfeifer <bastianxpfeifer@gmail.com>
-Depends: R (>= 2.14.2), fastcluster, cluster 
+Depends: R (>= 3.5.0), fastcluster, cluster 
 Imports: methods 
 Suggests: foreach, doParallel
 Description: We provide a hierarchical clustering and data fusion approach called HCfused for clustering multi-view data. Unless other algorithms the proposed approach naturally reports on the contribution of each single-view to the data fusion process.

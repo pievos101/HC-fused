@@ -31,3 +31,5 @@ export(HC_fused_calc_NETWORK)
 export(HC_fused_kNNGraph)
 export(HC_fused_kNNGraph2)
 
+# general usage exports
+export(HCmv)
