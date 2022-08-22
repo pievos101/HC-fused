@@ -64,8 +64,13 @@ ass2 = association(cl2)
 These two binary matrices can now be fused
 
 ```{r}
-affinityMatrix = HCfuse(list(ass1, ass2))
+res = HCfuse(list(ass1, ass2))
+affinityMatrix = res$P
 ```
+
+## Hierarchical ensemble clustering
+
+
 
 ## References
 Please cie the following work in case you find the package useful:
