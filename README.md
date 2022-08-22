@@ -59,7 +59,7 @@ affinityMatrix = res$P
 which can be clustered by any clustering algorithm
 
 ```{r}
-distanceMatrix = 1 - affinityMatrix/max(affinityMatrix)
+distanceMatrix = 1 - affinityMatrix
 fused = hclust(as.dist(distanceMatrix), method="average")
 cl = cutree(fused, k=k)
 ```
@@ -94,7 +94,7 @@ These two binary matrices can now be fused
 
 ```{r}
 res = HCfuse(list(ass1, ass2))
-affinityMatrix = res$P
+affinityMatrix = res$NETWORK
 ```
 
 ## Hierarchical ensemble clustering
