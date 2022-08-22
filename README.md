@@ -15,7 +15,7 @@ library(HCfused)
 
 ## Basic usage
 
-Loading example data views
+Loading some data views
 
 ```{r}
 data(view1)
@@ -36,7 +36,7 @@ k   = length(unique(target))
 res = HCmv(list(view1, view2), k=k, method="ward.D")
 ```
 
-The fusion cluster solution can be obtained from 
+The fused cluster solution can be obtained from 
 
 ```{r}
 cl = res$cluster
@@ -74,7 +74,7 @@ NMI(cl, target)
 
 ## The fusion algorithm HCfuse
 
-You may want to use your own clustering algorithm and just employ the hierarchical fusion algorithm.
+You may want to use your own clustering algorithm and employ laste fusion using the hierarchical fusion algorithm HCfuse.
 
 For instance, lets assume we have two cluster solutions cl1 and cl2.
 
@@ -90,19 +90,21 @@ ass1 = association(cl1)
 ass2 = association(cl2)
 ```
 
-These two binary matrices can now be fused
+These two binary matrices can be fused.
 
 ```{r}
 res = HCfuse(list(ass1, ass2))
 affinityMatrix = res$NETWORK
 ```
 
+The resulting affinity matrix can then be clustered by any clustering algorithm.
+
 ## Hierarchical ensemble clustering
 
 ... will be available soon ...
 
 ## References
-Please cie the following work in case you find the package useful.
+Please cite the following work in case you find the package useful.
 
 
 Pfeifer, Bastian, and Michael G. Schimek. "A hierarchical clustering and data fusion approach for disease subtype discovery." Journal of Biomedical Informatics 113 (2021): 103636.
