@@ -1,8 +1,10 @@
-HCmv <- function(views=list(), max.k=10, fix.k=NaN, this_method="ward.D", 
+HCmv <- function(views=list(), max.k=10, k=NaN, method="ward.D", 
 					HC.iter=20, use_opt_code=TRUE){
 
+fix.k = k
 parallel=FALSE
 omics = views #@FIXME
+this_method = method
 
 omics_binary <- vector("list", length(omics))
 

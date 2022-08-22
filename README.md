@@ -10,6 +10,7 @@ install.packages("devtools")
 library(devtools)
 
 install_github("pievos101/HC-fused")
+library(HCfused)
 ```
 
 ## Basic usage
@@ -34,7 +35,7 @@ Let's cluster the views using the ward.D method.
 res = HCmv(list(view1, view2), method="ward.D")
 ```
 
-The fused matrix can be accesed via
+The fused affinity matrix can be accesed via
 
 ```{r}
 res$P
@@ -43,7 +44,8 @@ res$P
 which can be clustered again
 
 ```{r}
-fused = hclust(as.dist(res$P), method="ward.D")
+P_dist = 1 - P/max(P)
+fused = hclust(as.dist(P_dist), method="ward.D")
 ```
 
 Let's check the performance based on the Adjusted R Index (ARI)
