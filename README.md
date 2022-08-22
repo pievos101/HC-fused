@@ -1,5 +1,14 @@
 # HCfused: multi-view hierarchical clustering in R 
 
+## Installation
+
+```{r}
+install.packages("devtools")
+library(devtools)
+
+install_github("pievos101/HC-fused")
+```
+
 ## Basic usage
 
 Loading example data views
