@@ -32,26 +32,41 @@ Multi-view clustering using HCfused.
 Let's cluster the views using the ward.D method.
 
 ```{r}
-res = HCmv(list(view1, view2), method="ward.D")
+k   = length(unique(target))
+res = HCmv(list(view1, view2), k=k, method="ward.D")
 ```
 
-The fused affinity matrix can be accesed via
+The fusion cluster solution can be obtained from 
 
 ```{r}
-res$P
-```
-
-which can be clustered again
-
-```{r}
-P_dist = 1 - P/max(P)
-fused = hclust(as.dist(P_dist), method="ward.D")
+cl = res$cluster
 ```
 
 Let's check the performance based on the Adjusted R Index (ARI)
 
 ```{r}
-cl = cutree(fused, k=length(unique(target)))
+require(aricode)
+ARI(cl, target)
+NMI(cl, target)
+```
+
+The fused affinity matrix can be accesed via
+
+```{r}
+affinityMatrix = res$P
+```
+
+which can be clustered by any clustering algorithm
+
+```{r}
+distanceMatrix = 1 - affinityMatrix/max(affinityMatrix)
+fused = hclust(as.dist(distanceMatrix), method="average")
+```
+
+Let's check the performance based on the Adjusted R Index (ARI)
+
+```{r}
+cl = cutree(fused, k=k)
 require(aricode)
 ARI(cl, target)
 NMI(cl, target)
