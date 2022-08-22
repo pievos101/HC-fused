@@ -29,10 +29,18 @@ res$P
 
 which can be clustered again
 
-
 ```{r}
 fused = hclust(as.dist(res$P), method="ward.D")
+```
+
+Let's check the performance based on the Adjusted R Index (ARI)
+
 ```{r}
+cl = cutree(fused, k=length(unique(target)))
+require(aricode)
+ARI(cl, target)
+NMI(cl, target)
+```
 
 
 ## References
