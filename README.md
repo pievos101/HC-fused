@@ -99,7 +99,7 @@ affinityMatrix = res$NETWORK
 
 The resulting affinity matrix can then be clustered by any clustering algorithm.
 
-## Parea - multi-view hierarchical ensemble clustering
+## Parea: multi-view hierarchical ensemble clustering
 
 ```{r}
 require(GA)
