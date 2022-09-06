@@ -101,6 +101,9 @@ The resulting affinity matrix can then be clustered by any clustering algorithm.
 
 ## Parea: multi-view hierarchical ensemble clustering
 
+![Parea1Logo](https://github.com/pievos101/HC-fused/blob/master/Parea1.png)
+
+
 ```{r}
 require(GA)
 ```
