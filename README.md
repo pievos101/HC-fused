@@ -100,8 +100,63 @@ affinityMatrix = res$NETWORK
 The resulting affinity matrix can then be clustered by any clustering algorithm.
 
 ## Hierarchical ensemble clustering
+```{r}
+require(GA)
+```
 
-... will be available soon ...
+First, we need to define the fitness function for the genetic algorithm.
+
+```{r}
+# Fitness function for genetic algorithm
+check_ensemble <- function(x, methods=FALSE, omics_in=FALSE, fix.k=NaN){
+	ens  <- round(x)
+	ens  <- methods[ens]
+	res  <- Parea(omics=omics_in, this_method=ens, fix.k=fix.k, type=1)
+	return(res$SIL)
+} # end of fitness function
+```
+
+The following methods are available.
+
+```{r}
+# Available hierarchical clustering methods
+methods = c("single", "complete", "average", "mcquitty", "ward.D",
+"ward.D2", "centroid", "median")
+
+fix.k = 5
+
+# Perform the genetic algorithm
+res <- ga(
+	type = "real-valued", 
+	fitness = check_ensemble, methods, list(view1, view2), fix.k, lower = c(1,1), upper = c(8,8),  
+	elitism = 20, maxiter = 20, popSize = 20, 
+	run = 20, parallel=FALSE)
+```
+
+The inferred methods are within the 'solution' slot
+
+```{r}
+sel       <- methods[round(res@solution)]
+```
+
+Now, we can cluster the data with the inferred methods
+
+```{r}
+res       <-  Parea(list(view1, view2), 
+              fix.k=k,
+              this_method=sel,
+              HC.iter=30)
+
+cl_ensemble  <- res$cluster
+```
+
+Let's check the performance based on ARI and NMI.
+
+```{r}
+require(aricode)
+ARI(cl_ensemble, target)
+NMI(cl_ensemble, target)
+```
 
 ## References
 Please cite the following work in case you find the package useful.
