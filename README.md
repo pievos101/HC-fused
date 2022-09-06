@@ -123,7 +123,11 @@ The following methods are available.
 # Available hierarchical clustering methods
 methods = c("single", "complete", "average", "mcquitty", "ward.D",
 "ward.D2", "centroid", "median")
+```
 
+Starting the genetic algorithm
+
+```{r}
 fix.k = 5
 
 # Perform the genetic algorithm
