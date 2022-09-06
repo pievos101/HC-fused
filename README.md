@@ -99,7 +99,8 @@ affinityMatrix = res$NETWORK
 
 The resulting affinity matrix can then be clustered by any clustering algorithm.
 
-## Parea - hierarchical ensemble clustering
+## Parea - multi-view hierarchical ensemble clustering
+
 ```{r}
 require(GA)
 ```
@@ -112,7 +113,7 @@ check_ensemble <- function(x, methods=FALSE, omics_in=FALSE, fix.k=NaN){
 	ens  <- round(x)
 	ens  <- methods[ens]
 	res  <- Parea(omics=omics_in, this_method=ens, fix.k=fix.k, type=1)
-	return(res$SIL)
+	return(res$SIL) # silhouette cofficient
 } # end of fitness function
 ```
 
