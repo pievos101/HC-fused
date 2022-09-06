@@ -145,7 +145,8 @@ Now, we can cluster the data with the inferred methods
 res       <-  Parea(list(view1, view2), 
               fix.k=k,
               this_method=sel,
-              HC.iter=30)
+              HC.iter=30, 
+              type=1)
 
 cl_ensemble  <- res$cluster
 ```
