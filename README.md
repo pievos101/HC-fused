@@ -41,6 +41,8 @@ The fused cluster solution can be obtained from
 ```{r}
 cl = res$cluster
 ```
+Note, when no k (number of clusters) is set, the optimal number 
+of clusters is inferred by the silhouette coefficient.
 
 Let's check the performance based on the Adjusted R Index (ARI)
 
