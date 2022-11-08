@@ -9,6 +9,10 @@ library(aricode)
 library(cluster)
 library(survival)
 library(HCfused)
+#require(parallel)
+source("~/GitHub/HC-fused/application/TCGA_clinical_enrichment.R")
+
+do.sampling <- TRUE
 
 do.LOG <- FALSE
 do.PCA <- FALSE
@@ -18,7 +22,7 @@ cat("Reading in TCGA data ... \n")
 # aml is slow
 # melanoma = SKCM
 #aml, gbm, lung, sarcoma, colon, liver, ovarian, breast, kidney, melanoma
-cancertype <- "melanoma"
+cancertype <- "kidney"
 LOC <- paste("~/TCGA_data/NAR Data/",cancertype,"/", sep="")
 
 #mRNA
@@ -38,13 +42,25 @@ patientsX <- intersect(intersect(rownames(mRNAX),rownames(MethyX)),rownames(miRN
 
 n.iter=30
 
+
+
 P_FUSED      <- rep(NaN,n.iter)
+CLIN_FUSED   <- vector("list", n.iter)
+
+
+if(!do.sampling){
+  n.iter=1
+}
 
 for (xx in 1:n.iter){
 
 cat(xx, "of", n.iter,"\n")
 
-patients <- sample(patientsX,100)
+if(do.sampling){
+  patients <- sample(patientsX,100)
+}else{
+  patients <- patientsX
+}
 
 mRNA  <- mRNAX[patients,]
 Methy <- MethyX[patients,]
@@ -147,23 +163,23 @@ print("GENTIC ALGORITHM")
 print("##################")
 
 # Perform the genetic algorithm
-res       <- HC_fused_subtyping_ga(list(mRNA, Methy, miRNA))
+res1       <- HC_fused_subtyping_ga(list(mRNA, Methy, miRNA))
 
-print(round(res@solution))
-sel       <- methods[round(res@solution)]
+print(round(res1@solution))
+sel       <- methods[round(res1@solution)]
 
 print("####################")
 print("Selected Methods:")
 print(sel)
 print("####################")
 
-res       <- HC_fused_subtyping_ens(list(mRNA,Methy,miRNA), 
+res2       <- HC_fused_subtyping_ens(list(mRNA,Methy,miRNA), 
               max.k=10, 
               this_method=c(sel[1],sel[2]),
               HC.iter=HC.iter)
 
-cl_fused  <- res$cluster
-
+cl_fused  <- res2$cluster
+names(cl_fused)   <- survival$PatientID
 
 #################################################################
 
@@ -176,6 +192,13 @@ P_FUSED[xx] = round(summary(coxFit)$sctest[3],digits = 40);
 
 print(P_FUSED)
 
+# Clinical enrichment
+CLIN_FUSED[[xx]] <-  check.clinical.enrichment(cl_fused, 
+                        subtype.name=cancertype)
+
+print(CLIN_FUSED)
+
+
 }#end of loop
 
 RESULT_log <- -log10(P_FUSED)
@@ -184,5 +207,15 @@ boxplot(RESULT_log, col="grey", ylab="-log10(logrank p-value)", las=1,
   outline=FALSE, cex.axis=0.9)
 abline(h=-log10(0.05), col="red")
 
+# Clinical enrichment
+CLIN_ENRICH = Reduce('rbind',CLIN_FUSED)
+write.table(CLIN_ENRICH, paste("Parea1_CLIN_ENRICH_",cancertype,".txt", sep=""))
+
 stop("Allet jut!")
 
+## Plots
+# Loading
+library("survminer") 
+fit<- survfit(Surv(time=Survival, event=Death) ~ groups, data = survival)
+# Drawing survival curves
+ggsurvplot(fit, pval = TRUE, risk.table = TRUE)
