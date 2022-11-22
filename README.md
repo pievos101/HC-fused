@@ -1,6 +1,6 @@
 # Multi-view hierarchical clustering in R
 <p align="center">
-<img src="https://github.com/pievos101/HC-fused/blob/master/logo.png" width="400">
+<img src="https://github.com/pievos101/HC-fused/blob/master/logo.png" width="500">
 </p>
 
 # Approach
