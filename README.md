@@ -3,10 +3,6 @@
 <img src="https://github.com/pievos101/HC-fused/blob/master/logo.png" width="500">
 </p>
 
-# Approach
-![HCfusedLogo2](https://github.com/pievos101/HC-fused/blob/master/HCfused.png)
-
-
 ## Installation
 
 ```{r}
@@ -16,6 +12,9 @@ library(devtools)
 install_github("pievos101/HC-fused")
 library(HCfused)
 ```
+## Approach
+![HCfusedLogo2](https://github.com/pievos101/HC-fused/blob/master/HCfused.png)
+
 
 ## Basic usage
 
