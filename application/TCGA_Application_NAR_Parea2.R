@@ -9,6 +9,7 @@ library(aricode)
 library(cluster)
 library(survival)
 library(HCfused)
+source("~/GitHub/HC-fused/application/TCGA_clinical_enrichment.R")
 
 do.LOG <- FALSE
 do.PCA <- FALSE
@@ -40,6 +41,7 @@ patientsX <- intersect(intersect(rownames(mRNAX),rownames(MethyX)),rownames(miRN
 n.iter=30
 
 P_FUSED      <- rep(NaN,n.iter)
+CLIN_FUSED   <- vector("list", n.iter)
 
 for (xx in 1:n.iter){
 
@@ -148,10 +150,10 @@ print("GENTIC ALGORITHM")
 print("##################")
 
 # Perform the genetic algorithm
-res       <- HC_fused_subtyping_ga2(list(mRNA, Methy, miRNA))
+res1       <- HC_fused_subtyping_ga2(list(mRNA, Methy, miRNA))
 
-print(round(res@solution))
-sel       <- methods[round(res@solution)]
+print(round(res1@solution))
+sel       <- methods[round(res1@solution)]
 print(sel)
 
 print("####################")
@@ -159,13 +161,13 @@ print("Selected Methods:")
 print(sel)
 print("####################")
 
-res       <- HC_fused_subtyping_ens2(list(mRNA,Methy,miRNA), 
+res2       <- HC_fused_subtyping_ens2(list(mRNA,Methy,miRNA), 
               max.k=10, 
               this_method=sel,#c(sel[1],sel[2]),
               HC.iter=HC.iter)
 
-cl_fused  <- res$cluster
-
+cl_fused  <- res2$cluster
+names(cl_fused)   <- survival$PatientID
 
 #################################################################
 
@@ -178,13 +180,27 @@ P_FUSED[xx] = round(summary(coxFit)$sctest[3],digits = 40);
 
 print(P_FUSED)
 
+
+# Clinical enrichment
+CLIN_FUSED[[xx]] <-  check.clinical.enrichment(cl_fused, 
+                        subtype.name=cancertype)
+
+print(CLIN_FUSED)
+
 }#end of loop
+
 
 RESULT_log <- -log10(P_FUSED)
 
 boxplot(RESULT_log, col="grey", ylab="-log10(logrank p-value)", las=1,
   outline=FALSE, cex.axis=0.9)
 abline(h=-log10(0.05), col="red")
+
+
+# Clinical enrichment
+CLIN_ENRICH = Reduce('rbind',CLIN_FUSED)
+write.table(CLIN_ENRICH, paste("Parea2_CLIN_ENRICH_",cancertype,".txt", sep=""))
+
 
 stop("Allet jut!")
 

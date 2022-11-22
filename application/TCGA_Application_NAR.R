@@ -14,10 +14,11 @@ library(PINSPlus)
 library(survival)
 library(SNFtool)
 library(HCfused)
+source("~/GitHub/HC-fused/application/TCGA_clinical_enrichment.R")
 
 #library(hcfusedpkg)
 
-source("~/GitHub/HC-fused/NEMO.R")
+source("~/GitHub/HC-fused/application/NEMO.R")
 
 do.LOG <- FALSE
 do.PCA <- FALSE
@@ -25,7 +26,7 @@ do.PCA <- FALSE
 cat("Reading in TCGA data ... \n")
 
 #aml, gbm, lung, sarcoma, colon, liver, ovarian, breast, kidney, melanoma
-cancertype <- "kidney"
+cancertype <- "aml"
 LOC <- paste("~/TCGA_data/NAR Data/",cancertype,"/", sep="")
 
 #mRNA
@@ -43,13 +44,19 @@ survivalX <- read.table(paste(LOC,"survival", sep=""), header=TRUE)
 # define the patients 
 patientsX <- intersect(intersect(rownames(mRNAX),rownames(MethyX)),rownames(miRNAX))
 
-n.iter=20
+n.iter=30
 
 P_SNF      <- rep(NaN,n.iter)
 P_PINS     <- rep(NaN,n.iter)
 P_FUSED    <- rep(NaN,n.iter)
 #P_SPECTRUM <- rep(NaN,n.iter)
 P_NEMO     <- rep(NaN,n.iter)
+
+
+CLIN_SNF   <- vector("list", n.iter)
+CLIN_PINS  <- vector("list", n.iter)
+CLIN_FUSED <- vector("list", n.iter)
+CLIN_NEMO  <- vector("list", n.iter)
 
 this_method = "ward.D"
 
@@ -158,6 +165,12 @@ res        <- HC_fused_subtyping(list(mRNA,Methy,miRNA), max.k=10,
                           HC.iter=30, use_opt_code=TRUE)
 
 cl_fused   <- res$cluster
+names(cl_fused)   <- survival$PatientID
+
+# Clinical enrichment
+CLIN_FUSED[[xx]] <-  check.clinical.enrichment(cl_fused, 
+                        subtype.name=cancertype)
+
 
 ## SNF ######################################################
   ## First, set all the parameters:
@@ -182,6 +195,11 @@ cl_fused   <- res$cluster
   C = estimateNumberOfClustersGivenGraph(W)[[1]]
   
   groupSNF = spectralClustering(W,C);
+names(groupSNF)   <- survival$PatientID
+
+# Clinical enrichment
+CLIN_SNF[[xx]] <-  check.clinical.enrichment(groupSNF, 
+                        subtype.name=cancertype)
 
 
 ## PINSPLUS
@@ -190,11 +208,21 @@ cl_fused   <- res$cluster
   
  
  cl_pins <- result$cluster2
-  
+ names(cl_pins)   <- survival$PatientID 
+
+# Clinical enrichment
+CLIN_PINS[[xx]] <-  check.clinical.enrichment(cl_pins, 
+                        subtype.name=cancertype)
+
+
 #NEMO
   omics_list = list(as.data.frame(t(mRNA)),as.data.frame(t(Methy)),as.data.frame(t(miRNA))) 
   cl_nemo    = nemo.clustering(omics_list,num.neighbors=20)
+names(cl_nemo)   <- survival$PatientID
 
+# Clinical enrichment
+CLIN_NEMO[[xx]] <-  check.clinical.enrichment(cl_nemo, 
+                        subtype.name=cancertype)
 
 #Spectrum#########################
 
@@ -268,6 +296,18 @@ colnames(RESULT_log) <- c("SNF","PINSplus", "NEMO", "HC-FUSED")
 
 boxplot(RESULT_log, col="grey", ylab="-log10(logrank p-value)", outline=FALSE)
 abline(h=-log10(0.05), col="red")
+
+## save clinical enrichment
+CLIN_ENRICH = Reduce('rbind',CLIN_FUSED)
+write.table(CLIN_ENRICH, paste("HCfused_CLIN_ENRICH_",cancertype,".txt", sep=""))
+CLIN_ENRICH = Reduce('rbind',CLIN_SNF)
+write.table(CLIN_ENRICH, paste("SNF_CLIN_ENRICH_",cancertype,".txt", sep=""))
+CLIN_ENRICH = Reduce('rbind',CLIN_PINS)
+write.table(CLIN_ENRICH, paste("PINS_CLIN_ENRICH_",cancertype,".txt", sep=""))
+CLIN_ENRICH = Reduce('rbind',CLIN_NEMO)
+write.table(CLIN_ENRICH, paste("NEMO_CLIN_ENRICH_",cancertype,".txt", sep=""))
+
+
 
 stop("Allet jut!")
 

@@ -92,7 +92,7 @@ check.clinical.enrichment <- function(clustering, subtype.name) {
 }
 
 get.empirical.clinical <- function(clustering, clinical.values, is.chisq) {
-  set.seed(42)
+  #set.seed(42) # what ???
   if (is.chisq) {
       clustering.with.clinical = cbind(clustering, clinical.values)
       tbl = table(as.data.frame(clustering.with.clinical))
