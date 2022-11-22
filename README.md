@@ -175,6 +175,12 @@ ARI(cl_ensemble, target)
 NMI(cl_ensemble, target)
 ```
 
+
+# Miscellaneous
+
+Logo made by Adobe Express Logo Maker: <https://www.adobe.com/express/create/logo>
+
+
 ## References
 Please cite the following work in case you find the package useful.
 
