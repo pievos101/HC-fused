@@ -25,6 +25,7 @@ S <- NULL
 
 # Cluster fused matrix and combine solutions
 CL_LIST     <- vector("list", length(this_method))
+SIL_x = rep(NaN, length(this_method))
 
 for(xx in 1:length(this_method)){
  if(is.na(fix.k)){
@@ -33,14 +34,20 @@ for(xx in 1:length(this_method)){
 }else{
 	sil_fused  <- calc.SIL(as.dist(P), max.k, fix.k=fix.k, method=this_method[xx])
 	k_fused    <- fix.k
+	SIL_x[xx]  <- sil_fused
 }
 hc_fused   <- hclust(as.dist(P), method=this_method[xx])
 cl_fused   <- cutree(hc_fused, k_fused)
 CL_LIST[[xx]]  <- cl_fused
 }
 
+if(is.na(fix.k)){
 cl_fused <- combine_clusters(CL_LIST)
-
+}else{
+v_id = which.max(SIL_x) #length(CL_LIST) # sample(1:length(CL_LIST), 1)	
+sil_fused = max(SIL_x)
+cl_fused = CL_LIST[[v_id]]
+}
 
 # S
 if(length(S)>0){

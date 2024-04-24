@@ -43,9 +43,15 @@ patientsX <- intersect(intersect(rownames(mRNAX),rownames(MethyX)),rownames(miRN
 n.iter=30
 
 
+# Available methods
+methods = c("single", "complete", "average", "mcquitty", "ward.D",
+"ward.D2", "centroid", "median")
 
 P_FUSED      <- rep(NaN,n.iter)
 CLIN_FUSED   <- vector("list", n.iter)
+HEAT <- matrix(0, length(methods), length(methods))
+rownames(HEAT) <- methods
+colnames(HEAT) <- methods
 
 
 if(!do.sampling){
@@ -173,6 +179,9 @@ print("Selected Methods:")
 print(sel)
 print("####################")
 
+HEAT[sel[1], sel[2]] <- HEAT[sel[1], sel[2]] + 1 
+HEAT[sel[2], sel[1]] <- HEAT[sel[2], sel[1]] + 1 
+
 res2       <- HC_fused_subtyping_ens(list(mRNA,Methy,miRNA), 
               max.k=10, 
               this_method=c(sel[1],sel[2]),
@@ -193,11 +202,12 @@ P_FUSED[xx] = round(summary(coxFit)$sctest[3],digits = 40);
 print(P_FUSED)
 
 # Clinical enrichment
-CLIN_FUSED[[xx]] <-  check.clinical.enrichment(cl_fused, 
-                        subtype.name=cancertype)
+#CLIN_FUSED[[xx]] <-  check.clinical.enrichment(cl_fused, 
+#                        subtype.name=cancertype)
 
-print(CLIN_FUSED)
+#print(CLIN_FUSED)
 
+print(HEAT)
 
 }#end of loop
 

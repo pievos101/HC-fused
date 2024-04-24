@@ -50,14 +50,14 @@ check.clinical.enrichment <- function(clustering, subtype.name) {
     
     if (is.numeric.param) {
       numeric.entries = !is.na(as.numeric(clinical.values))
-      if (2 * sum(numeric.entries) < length(clinical.values)) {
+      if (4 * sum(numeric.entries) < length(clinical.values)) {
         #print(paste0('WARNING: skipping on ', clinical.param, ' for subtype ', subtype.name))
         next
       }
     } else {
       not.na.entries = !is.na(clinical.values)
       should.skip = F
-      if (2 * sum(not.na.entries) < length(clinical.values)) {
+      if (4 * sum(not.na.entries) < length(clinical.values)) {
         should.skip = T
       } else if (length(table(clinical.values[not.na.entries])) == 1) {
         should.skip = T

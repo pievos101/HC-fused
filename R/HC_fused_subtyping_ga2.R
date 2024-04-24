@@ -4,7 +4,7 @@
 check_ensemble2 <- function(x, methods=FALSE, omics_in=FALSE, fix.k=NaN){
 	ens  <- round(x)
 	ens  <- methods[ens]
-	res  <- HC_fused_subtyping_ens2(omics=omics_in, this_method=ens)
+	res  <- HC_fused_subtyping_ens2(omics=omics_in, this_method=ens, fix.k=fix.k)
 	#print(res$SIL)
 	return(res$SIL)
 } # end of fitness function

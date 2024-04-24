@@ -43,6 +43,8 @@ n.iter=30
 P_FUSED      <- rep(NaN,n.iter)
 CLIN_FUSED   <- vector("list", n.iter)
 
+HEAT <- matrix("",n.iter, 3)
+
 for (xx in 1:n.iter){
 
 cat(xx, "of", n.iter,"\n")
@@ -156,6 +158,9 @@ print(round(res1@solution))
 sel       <- methods[round(res1@solution)]
 print(sel)
 
+colnames(HEAT) <- c("mRNA","Methy","miRNA")
+HEAT[xx,] <- sel
+
 print("####################")
 print("Selected Methods:")
 print(sel)
@@ -182,10 +187,12 @@ print(P_FUSED)
 
 
 # Clinical enrichment
-CLIN_FUSED[[xx]] <-  check.clinical.enrichment(cl_fused, 
-                        subtype.name=cancertype)
+#CLIN_FUSED[[xx]] <-  check.clinical.enrichment(cl_fused, 
+#                        subtype.name=cancertype)
 
-print(CLIN_FUSED)
+#print(CLIN_FUSED)
+
+print(HEAT)
 
 }#end of loop
 

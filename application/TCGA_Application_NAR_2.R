@@ -17,15 +17,18 @@ library(HCfused)
 
 #library(hcfusedpkg)
 
-source("~/GitHub/HC-fused/NEMO.R")
+source("~/GitHub/HC-fused/application/NEMO.R")
+source("~/GitHub/HC-fused/application/TCGA_clinical_enrichment.R")
 
 do.LOG <- FALSE
 do.PCA <- FALSE
 
-do.SNF <- FALSE
-do.PINSPLUS <- FALSE
-do.NEMO <- FALSE
+do.SNF <- TRUE
+do.PINSPLUS <- TRUE
+do.NEMO <- TRUE
 do.HCfused <- TRUE
+do.PAREA1 <- TRUE
+do.PAREA2 <- TRUE
 
 cat("Reading in TCGA data ... \n")
 
@@ -55,6 +58,35 @@ P_PINS     <- rep(NaN,n.iter)
 P_FUSED    <- rep(NaN,n.iter)
 #P_SPECTRUM <- rep(NaN,n.iter)
 P_NEMO     <- rep(NaN,n.iter)
+P_PAREA1   <- rep(NaN,n.iter)
+P_PAREA2   <- rep(NaN,n.iter)
+
+K_SNF      <- rep(NaN,n.iter)
+K_PINS     <- rep(NaN,n.iter)
+K_FUSED    <- rep(NaN,n.iter)
+#P_SPECTRUM <- rep(NaN,n.iter)
+K_NEMO     <- rep(NaN,n.iter)
+K_PAREA1   <- rep(NaN,n.iter)
+K_PAREA2   <- rep(NaN,n.iter)
+
+
+C_SNF      <- rep(NaN,n.iter)
+C_PINS     <- rep(NaN,n.iter)
+C_FUSED    <- rep(NaN,n.iter)
+#P_SPECTRUM <- rep(NaN,n.iter)
+C_NEMO     <- rep(NaN,n.iter)
+C_PAREA1   <- rep(NaN,n.iter)
+C_PAREA2   <- rep(NaN,n.iter)
+
+
+
+CLIN_SNF    <- vector("list", n.iter)
+CLIN_PINS   <- vector("list", n.iter)
+CLIN_FUSED  <- vector("list", n.iter)
+CLIN_NEMO   <- vector("list", n.iter)
+CLIN_PAREA1 <- vector("list", n.iter)
+CLIN_PAREA2 <- vector("list", n.iter)
+
 
 this_method = "ward.D"
 
@@ -63,6 +95,9 @@ for (xx in 1:n.iter){
 cat(xx, "of", n.iter,"\n")
 
 patients <- sample(patientsX,100)
+
+# DELETE again !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#patients <- patientsX
 
 mRNA  <- mRNAX[patients,]
 Methy <- MethyX[patients,]
@@ -185,35 +220,129 @@ if(do.SNF){
   W  = SNF(list(W1,W2,W3), K, NIT)
 
 #Groups with SNF
-  C = estimateNumberOfClustersGivenGraph(W)[[2]]
+  C = estimateNumberOfClustersGivenGraph(W)[[1]] #1 is eigen gap
   
   groupSNF = spectralClustering(W,C);
+  names(groupSNF)   <- survival$PatientID
+
+  # Clinical enrichment
+  CLIN_SNF[[xx]] <-  check.clinical.enrichment(groupSNF, 
+                        subtype.name=cancertype)
+
 }
 
 ## PINSPLUS
  #result  <- SubtypingOmicsData(dataList = list(mRNA,Methy,miRNA), iterMin=20)
 if(do.PINSPLUS){ 
  result  <- SubtypingOmicsData(dataList = list(mRNA,Methy,miRNA), iterMin=20,
-             verbose=FALSE, kMax=10, clusteringMethod="hclust")
+             verbose=FALSE, kMax=10, 
+             clusteringMethod="kmeans")
   
  
  cl_pins <- result$cluster2
+ names(cl_pins)   <- survival$PatientID
+
+ # Clinical enrichment
+ CLIN_PINS[[xx]] <-  check.clinical.enrichment(cl_pins, 
+                        subtype.name=cancertype)
 }  
 #NEMO
 if(do.NEMO){
   omics_list = list(as.data.frame(t(mRNA)),as.data.frame(t(Methy)),as.data.frame(t(miRNA))) 
   cl_nemo    = nemo.clustering(omics_list,num.neighbors=20)
+  names(cl_nemo)   <- survival$PatientID
+
+ # Clinical enrichment
+ CLIN_NEMO[[xx]] <-  check.clinical.enrichment(cl_nemo, 
+                        subtype.name=cancertype)
 
 }
 
 if(do.HCfused){
-
+  HC.iter=30
   res                 <- HC_fused_subtyping(list(mRNA,Methy,miRNA), max.k=10, 
                           HC.iter=HC.iter, use_opt_code = TRUE)
   cl_fused            <- res$cluster
 
+  names(cl_fused)   <- survival$PatientID
+
+
+ # Clinical enrichment
+ CLIN_FUSED[[xx]] <-  check.clinical.enrichment(cl_fused, 
+                        subtype.name=cancertype)
+
 }
-#Spectrum#########################
+
+if(do.PAREA1){
+
+## HCfused - original
+HC.iter=30
+
+# Available methods
+methods = c("single", "complete", "average", "mcquitty", "ward.D",
+"ward.D2", "centroid", "median")
+
+#print("##################")
+#print("GENTIC ALGORITHM")
+#print("##################")
+
+# Perform the genetic algorithm
+res1       <- HC_fused_subtyping_ga(list(mRNA, Methy, miRNA))
+
+#print(round(res1@solution))
+sel       <- methods[round(res1@solution)]
+
+#print("####################")
+#print("Selected Methods:")
+#print(sel)
+#print("####################")
+
+
+res2       <- HC_fused_subtyping_ens(list(mRNA,Methy,miRNA), 
+              max.k=5, 
+              this_method=c(sel[1],sel[2]),
+              HC.iter=HC.iter)
+
+cl_parea1  <- res2$cluster
+names(cl_parea1)   <- survival$PatientID
+
+
+ # Clinical enrichment
+CLIN_PAREA1[[xx]] <-  check.clinical.enrichment(cl_parea1, 
+                        subtype.name=cancertype)
+
+}
+
+
+if(do.PAREA2){
+
+## HCfused - original
+HC.iter=30
+
+# Available methods
+methods = c("single", "complete", "average", "mcquitty", "ward.D",
+"ward.D2", "centroid", "median")
+
+# Perform the genetic algorithm
+res1       <- HC_fused_subtyping_ga2(list(mRNA, Methy, miRNA))
+
+sel       <- methods[round(res1@solution)]
+
+res2       <- HC_fused_subtyping_ens2(list(mRNA,Methy,miRNA), 
+              max.k=5, 
+              this_method=sel,#c(sel[1],sel[2]),
+              HC.iter=HC.iter)
+
+cl_parea2  <- res2$cluster
+names(cl_parea2)   <- survival$PatientID
+
+# Clinical enrichment
+CLIN_PAREA2[[xx]] <-  check.clinical.enrichment(cl_parea2, 
+                        subtype.name=cancertype)
+
+}
+
+#Spectrum #########################
 
 #one   <- as.data.frame(t(x_mRNA))
 #two   <- as.data.frame(t(x_Methy))
@@ -228,7 +357,11 @@ if(do.HCfused){
 #rm(res_spec)
 #gc()
 ###
-  
+
+#surv <- Surv(survival, censor)
+#sum.surv <- summary(coxph(surv ~ group))
+#c_index <- sum.surv$concordance  
+
 
 ### Survival
 if(do.SNF){
@@ -238,6 +371,8 @@ coxFit <- coxph(Surv(time = Survival, event = Death) ~ groups, data = survival, 
 cox_snf  <- round(summary(coxFit)$sctest[3],digits = 40);
 #print(cox_snf)
 P_SNF[xx] = round(summary(coxFit)$sctest[3],digits = 40);
+K_SNF[xx] = length(unique(groups))
+C_SNF[xx] = summary(coxFit)$concordance 
 }
 
 if(do.PINSPLUS){
@@ -247,6 +382,8 @@ coxFit <- coxph(Surv(time = Survival, event = Death) ~ groups, data = survival, 
 cox_pins <- round(summary(coxFit)$sctest[3],digits = 40);
 #print(cox_pins)
 P_PINS[xx] = round(summary(coxFit)$sctest[3],digits = 40);
+K_PINS[xx] = length(unique(groups))
+C_PINS[xx] = summary(coxFit)$concordance 
 }
 
 if(do.NEMO){
@@ -256,6 +393,8 @@ coxFit <- coxph(Surv(time = Survival, event = Death) ~ groups, data = survival, 
 cox_nemo <- round(summary(coxFit)$sctest[3],digits = 40);
 #print(cox_fused)
 P_NEMO[xx] = round(summary(coxFit)$sctest[3],digits = 40);
+K_NEMO[xx] = length(unique(groups))
+C_NEMO[xx] = summary(coxFit)$concordance 
 }
 
 if(do.HCfused){
@@ -265,12 +404,62 @@ coxFit <- coxph(Surv(time = Survival, event = Death) ~ groups, data = survival, 
 cox_nemo <- round(summary(coxFit)$sctest[3],digits = 40);
 #print(cox_fused)
 P_FUSED[xx] = round(summary(coxFit)$sctest[3],digits = 40);
+K_FUSED[xx] = length(unique(groups))
+C_FUSED[xx] = summary(coxFit)$concordance 
 }
 
-print(cbind(P_SNF,P_PINS,P_NEMO,P_FUSED))
+if(do.PAREA1){
+groups <- factor(cl_parea1)
+names(groups) = rownames(survival)
+coxFit <- coxph(Surv(time = Survival, event = Death) ~ groups, data = survival, ties="exact")
+cox_nemo <- round(summary(coxFit)$sctest[3],digits = 40);
+#print(cox_fused)
+P_PAREA1[xx] = round(summary(coxFit)$sctest[3],digits = 40);
+K_PAREA1[xx] = length(unique(groups))
+C_PAREA1[xx] = summary(coxFit)$concordance 
+}
 
+if(do.PAREA2){
+groups <- factor(cl_parea2)
+names(groups) = rownames(survival)
+coxFit <- coxph(Surv(time = Survival, event = Death) ~ groups, data = survival, ties="exact")
+cox_nemo <- round(summary(coxFit)$sctest[3],digits = 40);
+#print(cox_fused)
+P_PAREA2[xx] = round(summary(coxFit)$sctest[3],digits = 40);
+K_PAREA2[xx] = length(unique(groups))
+C_PAREA2[xx] = summary(coxFit)$concordance 
+}
+
+
+#RESX <- cbind(P_SNF,P_PINS,P_NEMO,P_FUSED, P_PAREA1, P_PAREA2)
+#RESX <- cbind(K_SNF,K_PINS,K_NEMO,K_FUSED,K_PAREA1,K_PAREA2)
+RESX <- cbind(C_SNF,C_PINS,C_NEMO,C_FUSED,C_PAREA1,C_PAREA2)
+colnames(RESX) <- c("SNF","PINS","NEMO","HCFUSED","PAREA1","PAREA2")
+
+print(CLIN_FUSED)
+# What the hack does manipulate the seed?
+rm(.Random.seed, envir=globalenv())
 
 }#end of loop
+
+
+## save clinical enrichment
+CLIN_ENRICH = Reduce('rbind',CLIN_FUSED)
+write.table(CLIN_ENRICH, paste("HCfused_CLIN_ENRICH2_",cancertype,".txt", sep=""))
+CLIN_ENRICH = Reduce('rbind',CLIN_SNF)
+write.table(CLIN_ENRICH, paste("SNF_CLIN_ENRICH2_",cancertype,".txt", sep=""))
+CLIN_ENRICH = Reduce('rbind',CLIN_PINS)
+write.table(CLIN_ENRICH, paste("PINS_CLIN_ENRICH2_",cancertype,".txt", sep=""))
+CLIN_ENRICH = Reduce('rbind',CLIN_NEMO)
+write.table(CLIN_ENRICH, paste("NEMO_CLIN_ENRICH2_",cancertype,".txt", sep=""))
+CLIN_ENRICH = Reduce('rbind',CLIN_PAREA1)
+write.table(CLIN_ENRICH, paste("PAREA1_CLIN_ENRICH2_",cancertype,".txt", sep=""))
+CLIN_ENRICH = Reduce('rbind',CLIN_PAREA2)
+write.table(CLIN_ENRICH, paste("PAREA2_CLIN_ENRICH2_",cancertype,".txt", sep=""))
+
+
+
+stop("Allet jut!")
 
 RESULT  <- cbind(P_SNF, P_PINS, P_NEMO)
 RESULT_log <- -log10(RESULT)
@@ -281,7 +470,8 @@ abline(h=-log10(0.05), col="red")
 
 stop("Allet jut!")
 
-
+library(ggplot2)
+library(reshape)
 ## Paper plots
 
 par(mfrow=c(2,2))
